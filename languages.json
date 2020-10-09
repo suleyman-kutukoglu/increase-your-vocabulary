@@ -1,7 +1,7 @@
 {
     "TR": {
         "welcome": " __   __  _______  _______  _______  _______  ___      ______   ___   __    _  __  \n|  | |  ||       ||       ||       ||       ||   |    |      | |   | |  |  | ||  | \n|  |_|  ||   _   ||  _____||    ___||    ___||   |    |  _    ||   | |   |_| ||  | \n|       ||  | |  || |_____ |   | __ |   |___ |   |    | | |   ||   | |       ||  | \n|       ||  |_|  ||_____  ||   ||  ||    ___||   |___ | |_|   ||   | |  _    ||__| \n|   _   ||       | _____| ||   |_| ||   |___ |       ||       ||   | | | |   | __  \n|__| |__||_______||_______||_______||_______||_______||______| |___| |_|  |__||__| \n\n\n",
-        "firstInfo": "Tahmin yapmak için 1 giriniz.\n\nÖğrenilen kelimeleri görmek için 2 giriniz.\n\nAyarları değiştirmek için 3 giriniz.\n\nYeni kelime eklemek için 4 giriniz.\n\nVeritabanından kelime silmek için 5 giriniz.\n\nVeritabanındaki kelimeleri listelemek için 6 giriniz.\n\nTahmin yaparken bu menüye dönmek için Q giriniz.\n",
+        "firstInfo": "Çeviri tahmini yapmak için 1 giriniz.\n\nÖğrenilen kelimeleri görmek için 2 giriniz.\n\nAyarları değiştirmek için 3 giriniz.\n\nYeni kelime eklemek için 4 giriniz.\n\nVeritabanından kelime silmek için 5 giriniz.\n\nVeritabanındaki kelimeleri listelemek için 6 giriniz.\n\nTahmin yaparken bu menüye dönmek için Q giriniz.\n",
         "emptyDatabase": "Veritabanında sorulabilecek kelime bulunamadı.\n\nVeritabanı boş veya olan kelimeler öğrenilme şartlarını sağlıyor.",
         "guessInput": "kelimesinin Türkçe karşılığını giriniz: ",
         "correctGuess": "doğru çeviri!",
