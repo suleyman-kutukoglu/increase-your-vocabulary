@@ -1,6 +1,7 @@
 # Increase Vocabulary
 
 The aim of the project is to help increase our vocabulary while learning a new language. You add the words you have just learned to the database with their translations and random words are asked from the database. Whether you learn the words or not is entirely determined by your own settings. In order for a word in the database to be considered learned, it must meet the success rate (Success Rate = (correctAnswer / (correctAnswer + wrongAnswer))) * 100.0 Ex:(4 correct 4 wrong 4 / ( 4+4 )*100.0 = %50 Success Rate) ) and the correct translation count. For example, if you make the required success rate 50%, the correct number of translations required is 10, and if some words in the database meet these conditions, the words that meet the requirements will not be asked again. You can change the required success rate and the number of correct translations required at any time.
+Thanks for reading and sorry for my bad english.
 
 ## Getting Started
 
