@@ -7,6 +7,15 @@ Thanks for reading and sorry for my bad english.
 
 When you first open it, the first thing you need to do is go to the settings menu and adjust the required success rate and the correct number of translations required. Then you can start working by adding the words you want to learn to the system.
 
+## Features
+
+- English/Turkish interface support
+- Show all words in database
+- Show only learned words
+- Adding words to the database and deleting words from the database
+- Option to show success rate after each translation
+
+
 ### Prerequisites
 
 What things you need to install the software and how to install them?
