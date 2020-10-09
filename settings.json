@@ -1,6 +1,6 @@
 {
-    "language": "TR",
-    "requiredGuess": "55",
+    "language": "EN",
+    "requiredGuess": "40",
     "showSuccessRate": "On",
-    "requiredSuccessRate": "3"
+    "requiredSuccessRate": "80"
 }
