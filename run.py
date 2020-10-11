@@ -29,86 +29,86 @@ def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def randomWord():
-    sqlCursor = connection.cursor()
-    sqlCursor.execute("SELECT * from 'words'")
+def random_word():
+    sql_cursor = connection.cursor()
+    sql_cursor.execute("SELECT * from 'words'")
 
-    allRows = sqlCursor.fetchall()
+    all_rows = sql_cursor.fetchall()
 
-    if len(allRows) == 0:
+    if len(all_rows) == 0:
         return None
     else:
-        wordFromDatabase = choice(allRows)
+        word_from_database = choice(all_rows)
 
         try:
-            successRateNow = float(wordFromDatabase[2]) / (
-                    float(wordFromDatabase[2]) + float(wordFromDatabase[3])) * 100.0
+            success_rate_now = float(word_from_database[2]) / (
+                    float(word_from_database[2]) + float(word_from_database[3])) * 100.0
         except ZeroDivisionError:
-            successRateNow = 0
+            success_rate_now = 0
 
-        guessNow = int(wordFromDatabase[2])
-        requiredSuccessRate = float(settings["requiredSuccessRate"])
-        requiredGuess = float(settings["requiredGuess"])
+        guess_now = int(word_from_database[2])
+        required_success_rate = float(settings["requiredSuccessRate"])
+        required_guess = float(settings["requiredGuess"])
 
         i = 0
 
-        while i < len(allRows) + 3:
-            if len(allRows) == 0:
+        while i < len(all_rows) + 3:
+            if len(all_rows) == 0:
                 return None
 
             else:
-                if requiredSuccessRate > successRateNow or requiredGuess > guessNow:
-                    validWord = wordFromDatabase
-                    return validWord
+                if required_success_rate > success_rate_now or required_guess > guess_now:
+                    valid_word = word_from_database
+                    return valid_word
                 else:
-                    allRows.remove(wordFromDatabase)
-                    if len(allRows) == 0:
+                    all_rows.remove(word_from_database)
+                    if len(all_rows) == 0:
                         return None
                     else:
-                        wordFromDatabase = choice(allRows)
+                        word_from_database = choice(all_rows)
                         try:
-                            successRateNow = (float(wordFromDatabase[2]) / (
-                                    float(wordFromDatabase[2]) + float(wordFromDatabase[3]))) * 100.0
+                            success_rate_now = (float(word_from_database[2]) / (
+                                    float(word_from_database[2]) + float(word_from_database[3]))) * 100.0
                         except ZeroDivisionError:
-                            successRateNow = 0
-                        guessNow = int(wordFromDatabase[2])
+                            success_rate_now = 0
+                        guess_now = int(word_from_database[2])
 
                         i += 1
                         continue
 
 
-def updateGuessCounter(guessType, wordTuple):
-    if guessType == 'correctGuess':
+def update_guess_counter(guess_type, word_tuple):
+    if guess_type == 'correctGuess':
         sql = 'UPDATE words SET correctGuess = ? WHERE word = ?'
-        sqlCursor = connection.cursor()
-        sqlCursor.execute(sql, (str(int(wordTuple[2]) + 1), wordTuple[0]))
+        sql_cursor = connection.cursor()
+        sql_cursor.execute(sql, (str(int(word_tuple[2]) + 1), word_tuple[0]))
         connection.commit()
 
-    elif guessType == 'wrongGuess':
+    elif guess_type == 'wrongGuess':
         sql = 'UPDATE words SET wrongGuess = ? WHERE word = ?'
-        sqlCursor = connection.cursor()
-        sqlCursor.execute(sql, (str(int(wordTuple[3]) + 1), wordTuple[0]))
+        sql_cursor = connection.cursor()
+        sql_cursor.execute(sql, (str(int(word_tuple[3]) + 1), word_tuple[0]))
         connection.commit()
 
 
-def getWordData(nameOfWord):
+def get_word_data(name_of_word):
     sql = "Select * from words where word = ?"
-    sqlCursor = connection.cursor()
-    sqlCursor.execute(sql, (nameOfWord,))
-    rowTuple = sqlCursor.fetchall()
-    return rowTuple
+    sql_cursor = connection.cursor()
+    sql_cursor.execute(sql, (name_of_word,))
+    row_tuple = sql_cursor.fetchall()
+    return row_tuple
 
 
-def addWordToDatabase(original, translated):
-    addSql = ' INSERT INTO words(word, translatedWord, correctGuess, wrongGuess)VALUES(?,?,?,?) '
-    checkSql = 'SELECT * FROM words where word = ?'
+def add_word_to_database(original, translated):
+    add_sql = ' INSERT INTO words(word, translatedWord, correctGuess, wrongGuess)VALUES(?,?,?,?) '
+    check_sql = 'SELECT * FROM words where word = ?'
 
-    sqlCursor = connection.cursor()
-    sqlCursor.execute(checkSql, (original,))
-    checkWord = sqlCursor.fetchall()
+    sql_cursor = connection.cursor()
+    sql_cursor.execute(check_sql, (original,))
+    check_word = sql_cursor.fetchall()
 
-    if len(checkWord) == 0:
-        sqlCursor.execute(addSql, (original, translated, 0, 0))
+    if len(check_word) == 0:
+        sql_cursor.execute(add_sql, (original, translated, 0, 0))
         print(message["successfullyAdded"])
     else:
         print(message["alreadyAdded"])
@@ -116,19 +116,19 @@ def addWordToDatabase(original, translated):
     connection.commit()
 
 
-def removeWordFromDatabase(nameOfWord):
-    deleteSql = 'DELETE from words where word = ?'
-    wordList = 'SELECT * FROM words where word = ?'
+def remove_word_from_database(name_of_word):
+    delete_sql = 'DELETE from words where word = ?'
+    word_list = 'SELECT * FROM words where word = ?'
 
-    sqlCursor = connection.cursor()
-    sqlCursor.execute(wordList, (nameOfWord,))
+    sql_cursor = connection.cursor()
+    sql_cursor.execute(word_list, (name_of_word,))
 
-    thisWord = sqlCursor.fetchall()
+    this_word = sql_cursor.fetchall()
 
-    if len(thisWord) == 0:
+    if len(this_word) == 0:
         print(message["wordNotFound"])
     else:
-        sqlCursor.execute(deleteSql, (nameOfWord,))
+        sql_cursor.execute(delete_sql, (name_of_word,))
         print(message["wordDeleted"])
 
     connection.commit()
@@ -146,7 +146,7 @@ while True:
         if numInput == '1':
             os.system('color 06')
 
-            word = randomWord()
+            word = random_word()
             print("+" + "-" * 70 + "+\n")
             if word is None:
                 print(message["emptyDatabase"] + "\n")
@@ -160,9 +160,9 @@ while True:
 
                 consoleClearCounter += 1
                 if guess.lower() == word[1]:
-                    updateGuessCounter('correctGuess', word)
+                    update_guess_counter('correctGuess', word)
 
-                    row = getWordData(word[0])
+                    row = get_word_data(word[0])
                     wordName = row[0][0]
                     translatedWord = row[0][1]
                     correctCounter = int(row[0][2])
@@ -186,9 +186,9 @@ while True:
                     clear()
                     break
                 else:
-                    updateGuessCounter('wrongGuess', word)
+                    update_guess_counter('wrongGuess', word)
 
-                    row = getWordData(word[0])
+                    row = get_word_data(word[0])
                     wordName = row[0][0]
                     translatedWord = row[0][1]
                     correctCounter = int(row[0][2])
@@ -396,7 +396,7 @@ while True:
                     break
                 if verify:
                     print("+" + "-" * 70 + "+\n")
-                    addWordToDatabase(originalWord, translatedWord)
+                    add_word_to_database(originalWord, translatedWord)
 
         elif numInput == '5':
             os.system('color 4')
@@ -414,7 +414,7 @@ while True:
                     clear()
                     break
                 if verify:
-                    removeWordFromDatabase(wordToBeDeleted)
+                    remove_word_from_database(wordToBeDeleted)
         elif numInput == '6':
 
             cur = connection.cursor()
