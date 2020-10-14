@@ -3,6 +3,13 @@ import sqlite3
 import os
 from random import choice
 
+# "I" and "i" are not the same letters in the Turkish alphabet. In the Turkish alphabet, "I" and "ı" are the same
+# letter.
+lower_map = {
+    ord(u'I'): u'ı',
+    ord(u'İ'): u'i',
+}
+
 # Opening json files.
 
 with open('languages.json', 'r', encoding="utf-8") as f:
@@ -104,11 +111,11 @@ def add_word_to_database(original, translated):
     check_sql = 'SELECT * FROM words where word = ?'
 
     sql_cursor = connection.cursor()
-    sql_cursor.execute(check_sql, (original,))
+    sql_cursor.execute(check_sql, (original.lower(),))
     check_word = sql_cursor.fetchall()
 
     if len(check_word) == 0:
-        sql_cursor.execute(add_sql, (original, translated, 0, 0))
+        sql_cursor.execute(add_sql, (original.lower(), translated.translate(lower_map).lower(), 0, 0))
         print(message["successfullyAdded"])
     else:
         print(message["alreadyAdded"])
@@ -121,14 +128,14 @@ def remove_word_from_database(name_of_word):
     word_list = 'SELECT * FROM words where word = ?'
 
     sql_cursor = connection.cursor()
-    sql_cursor.execute(word_list, (name_of_word,))
+    sql_cursor.execute(word_list, (name_of_word.lower(),))
 
     this_word = sql_cursor.fetchall()
 
     if len(this_word) == 0:
         print(message["wordNotFound"])
     else:
-        sql_cursor.execute(delete_sql, (name_of_word,))
+        sql_cursor.execute(delete_sql, (name_of_word.lower(),))
         print(message["wordDeleted"])
 
     connection.commit()
@@ -159,7 +166,7 @@ while True:
                     consoleClearCounter = 0
 
                 consoleClearCounter += 1
-                if guess.lower() == word[1]:
+                if guess.translate(lower_map).lower() == word[1]:
                     update_guess_counter('correctGuess', word)
 
                     row = get_word_data(word[0])
@@ -282,7 +289,7 @@ while True:
                             f.truncate()
                         message = lang[settings["language"]]
                     clear()
-                    print(message["languageChanged"]+"<<< {} >>>".format(settings["language"]))
+                    print(message["languageChanged"] + "<<< {} >>>".format(settings["language"]))
                 elif settingsInput == '2':
                     if settings["showSuccessRate"] == "On":
                         clear()
@@ -383,17 +390,25 @@ while True:
                 print("+" + "-" * 70 + "+\n")
                 verify = False
                 originalWord = input("{}".format(message["enterOriginal"]))
-                translatedWord = input("{}".format(message["enterTranslated"]))
-                verifyInput = input("{}".format(message["enterVerifyForAdd"]))
-                clear()
 
-                if verifyInput == 'E' or verifyInput == 'e' or verifyInput == 'Y' or verifyInput == 'y':
-                    verify = True
-
-                if originalWord == 'q' or originalWord == 'Q' or translatedWord == 'q' or translatedWord == 'Q':
+                if originalWord.lower() == 'q':
                     numInput = "ExitLoop"
                     clear()
                     break
+
+                translatedWord = input("{}".format(message["enterTranslated"]))
+
+                if translatedWord.lower() == 'q':
+                    numInput = "ExitLoop"
+                    clear()
+                    break
+
+                verifyInput = input("{}".format(message["enterVerifyForAdd"]))
+                clear()
+
+                if verifyInput.lower() == 'e' or verifyInput.lower() == 'y':
+                    verify = True
+
                 if verify:
                     print("+" + "-" * 70 + "+\n")
                     add_word_to_database(originalWord, translatedWord)
@@ -404,15 +419,22 @@ while True:
                 print("+" + "-" * 70 + "+\n")
                 verify = False
                 wordToBeDeleted = input("{}".format(message["enterWordToBeDeleted"]))
+
+                if wordToBeDeleted.lower() == 'q':
+                    numInput = "ExitLoop"
+                    clear()
+                    break
+
                 verifyInput = input("{}".format(message["enterVerifyForDelete"]))
 
                 if verifyInput == 'E' or verifyInput == 'e' or verifyInput == 'Y' or verifyInput == 'y':
                     verify = True
 
-                if wordToBeDeleted == 'q' or wordToBeDeleted == 'Q':
+                elif verifyInput.lower() == 'q':
                     numInput = "ExitLoop"
                     clear()
                     break
+
                 if verify:
                     remove_word_from_database(wordToBeDeleted)
         elif numInput == '6':
@@ -451,12 +473,17 @@ while True:
                     print(message["allWords"] + "+" + "-" * 70 + "+\n")
 
                     for k, v in allWords.items():
-                        print(">>> {} {} %{:.2f}\n{} {} {} {}\n".format(k, message["successRate"],
-                                                                        v[0], message[
-                                                                            "correctGuessCounter"], int(v[1]),
-                                                                        message["wrongGuessCounter"],
-                                                                        int(v[2])))
-                    print("\n+" + "-" * 70 + "+\n")
+                        translatedVersion = get_word_data(k)[0][1]
+
+                        print(">>> {} ==> {}\n>>> {}%{:.2f}\n>>> {} {}\n>>> {} {}\n".format(k, translatedVersion,
+                                                                                            message["successRate"],
+                                                                                            v[0], message[
+                                                                                                "correctGuessCounter"],
+                                                                                            int(v[1]),
+                                                                                            message[
+                                                                                                "wrongGuessCounter"],
+                                                                                            int(v[2])))
+                        print("\n+" + "-" * 70 + "+\n")
                 break
 
         elif numInput == "ExitLoop":  # for double break process
