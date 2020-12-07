@@ -5,7 +5,7 @@ Thanks for reading and sorry for my bad english.
 
 ## Getting Started
 
-When you first open it, the first thing you need to do is go to the settings menu and adjust the required success rate and the correct number of translations required. Then you can start working by adding the words you want to learn to the system.
+When you first open it, the first thing you need to do is go to the settings menu and adjust the required success rate and the correct number of translations required. Then you can start working by adding the words you want to learn to the system. 
 
 ## Features
 
