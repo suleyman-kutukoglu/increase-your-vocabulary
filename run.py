@@ -10,10 +10,6 @@ lower_map = {
     ord(u'İ'): u'i',
 }
 
-#It opens the terminal in suitable width and length.
-cmd = 'mode 72,50'
-os.system(cmd)
-
 # Opening json files.
 
 with open('languages.json', 'r', encoding="utf-8") as f:
