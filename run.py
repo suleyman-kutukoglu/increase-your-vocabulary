@@ -141,6 +141,59 @@ def remove_word_from_database(name_of_word):
     connection.commit()
 
 
+def print_all_words():
+    word_counter = int()
+    print_cursor = connection.cursor()
+    print_cursor.execute("SELECT * from 'words'")
+
+    print_rows = print_cursor.fetchall()
+
+    if len(print_rows) == 0:
+        clear()
+        print(message["emptyDatabase"])
+        return True
+
+    else:
+        allWords = dict()
+        for word_print in print_rows:
+            correctCt_print = float(word_print[2])
+            wrongCt_print = float(word_print[3])
+
+            try:
+                success_rate_print = (correctCt_print / (correctCt_print + wrongCt_print)) * 100.0
+            except ZeroDivisionError:
+                success_rate_print = 0
+
+            allWords[word_print[0]] = [success_rate_print, correctCt_print, wrongCt_print]
+
+        if len(allWords) == 0:
+            clear()
+
+            print("+" + "-" * 70 + "+\n")
+            print(message["noWord"])
+            print("\n+" + "-" * 70 + "+\n")
+        else:
+            clear()
+            print(message["allWords"] + "+" + "-" * 70 + "+\n")
+
+            for K, V in allWords.items():
+                translatedVersion = get_word_data(K)[0][1]
+
+                print(">>> {} ==> {}\n>>> {}%{:.2f}\n>>> {} {}\n>>> {} {}\n".format(K, translatedVersion,
+                                                                                    message["successRate"],
+                                                                                    V[0], message[
+                                                                                        "correctGuessCounter"],
+                                                                                    int(V[1]),
+                                                                                    message[
+                                                                                        "wrongGuessCounter"],
+                                                                                    int(V[2])))
+                word_counter += 1
+                print("\n+" + "-" * 70 + "+\n")
+
+        print(message["printWordsEnd"] + str(word_counter) + "\n")
+        return True
+
+
 while True:
     os.system('color 9')
     print("+" + "-" * 70 + "+\n")
@@ -438,52 +491,7 @@ while True:
                 if verify:
                     remove_word_from_database(wordToBeDeleted)
         elif numInput == '6':
-
-            cur = connection.cursor()
-            cur.execute("SELECT * from 'words'")
-
-            rows = cur.fetchall()
-
-            if len(rows) == 0:
-                clear()
-                print(message["emptyDatabase"])
-                break
-
-            else:
-                allWords = dict()
-                for e in rows:
-                    correctCt = float(e[2])
-                    wrongCt = float(e[3])
-
-                    try:
-                        successRt = (correctCt / (correctCt + wrongCt)) * 100.0
-                    except ZeroDivisionError:
-                        successRt = 0
-
-                    allWords[e[0]] = [successRt, correctCt, wrongCt]
-
-                if len(allWords) == 0:
-                    clear()
-
-                    print("+" + "-" * 70 + "+\n")
-                    print(message["noWord"])
-                    print("\n+" + "-" * 70 + "+\n")
-                else:
-                    clear()
-                    print(message["allWords"] + "+" + "-" * 70 + "+\n")
-
-                    for k, v in allWords.items():
-                        translatedVersion = get_word_data(k)[0][1]
-
-                        print(">>> {} ==> {}\n>>> {}%{:.2f}\n>>> {} {}\n>>> {} {}\n".format(k, translatedVersion,
-                                                                                            message["successRate"],
-                                                                                            v[0], message[
-                                                                                                "correctGuessCounter"],
-                                                                                            int(v[1]),
-                                                                                            message[
-                                                                                                "wrongGuessCounter"],
-                                                                                            int(v[2])))
-                        print("\n+" + "-" * 70 + "+\n")
+            if print_all_words():
                 break
 
         elif numInput == "ExitLoop":  # for double break process

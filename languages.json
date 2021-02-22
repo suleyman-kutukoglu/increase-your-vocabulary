@@ -40,7 +40,8 @@
         "wordDeleted": "Kelime veritabanından başarıyla silindi!\n",
         "wordNotFound": "Silmek istediğiniz kelime veritabanında bulunamadı!\n\nDoğru yazdığınızdan emin olun.\n",
         "allWords": "Veritabanında kayıtlı tüm kelimelerin listesi:\n",
-        "noWord": "Veritabanında kelime bulunamadı!"
+        "noWord": "Veritabanında kelime bulunamadı!",
+        "printWordsEnd": "Veri tabanında kayıtlı kelime sayısı: "
     },
     "EN": {
        "welcome": " _     _  _______  ___      _______  _______  __   __  _______  __  \n| | _ | ||       ||   |    |       ||       ||  |_|  ||       ||  | \n| || || ||    ___||   |    |       ||   _   ||       ||    ___||  | \n|       ||   |___ |   |    |       ||  | |  ||       ||   |___ |  | \n|       ||    ___||   |___ |      _||  |_|  ||       ||    ___||__| \n|   _   ||   |___ |       ||     |_ |       || ||_|| ||   |___  __  \n|__| |__||_______||_______||_______||_______||_|   |_||_______||__| \n\n\n",
@@ -83,6 +84,7 @@
         "wordDeleted": "The word has been successfully deleted from the database!\n",
         "wordNotFound": "The word you want to delete was not found in the database!\n\nMake sure you spell it correctly.\n",
         "allWords": "List of all words registered in the database:\n",
-        "noWord": "Word not found in database!"
+        "noWord": "Word not found in database!",
+        "printWordsEnd": "Number of words registered in the database : "
     }
 }
