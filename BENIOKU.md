@@ -4,7 +4,9 @@ Projenin amacı, yeni bir dil öğrenirken kelime dağarcığımızı artırmaya
 
 ## Başlangıç
 
-İlk açtığınızda, yapmanız gereken ilk şey ayarlar menüsüne gidip gerekli başarı oranını ve gereken doğru çeviri sayısını ayarlamaktır. Daha sonra öğrenmek istediğiniz kelimeleri sisteme ekleyerek çalışmaya başlayabilirsiniz.
+İlk açtığınızda, yapmanız gereken ilk şey ayarlar menüsüne gidip gerekli başarı oranını ve gereken doğru çeviri sayısını ayarlamaktır. 
+Eğer sorulan kelimenin Türkçe karşılığını bilmiyorsanız, '?' girerek öğrenebilirsiniz.
+Daha sonra öğrenmek istediğiniz kelimeleri sisteme ekleyerek çalışmaya başlayabilirsiniz.
 
 ## Özellikler
 

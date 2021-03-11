@@ -37,65 +37,28 @@ def clear():
 
 
 def random_word():
-    sql_cursor = connection.cursor()
-    sql_cursor.execute("SELECT * from 'words'")
+    required_success_rate = float(settings["requiredSuccessRate"])
+    required_correct_guess = int(settings["requiredGuess"])
 
-    all_rows = sql_cursor.fetchall()
+    sql_unlearned_words = "SELECT * from 'words' where correctGuess = 0 OR (correctGuess < {} OR (((correctGuess*1.0/(correctGuess+wrongGuess))*100) < {}))".format(
+        required_correct_guess, required_success_rate)
+    cursor.execute(sql_unlearned_words)
 
-    if len(all_rows) == 0:
-        return None
-    else:
-        word_from_database = choice(all_rows)
-
-        try:
-            success_rate_now = float(word_from_database[2]) / (
-                    float(word_from_database[2]) + float(word_from_database[3])) * 100.0
-        except ZeroDivisionError:
-            success_rate_now = 0
-
-        guess_now = int(word_from_database[2])
-        required_success_rate = float(settings["requiredSuccessRate"])
-        required_guess = float(settings["requiredGuess"])
-
-        i = 0
-
-        while i < len(all_rows) + 3:
-            if len(all_rows) == 0:
-                return None
-
-            else:
-                if required_success_rate > success_rate_now or required_guess > guess_now:
-                    valid_word = word_from_database
-                    return valid_word
-                else:
-                    all_rows.remove(word_from_database)
-                    if len(all_rows) == 0:
-                        return None
-                    else:
-                        word_from_database = choice(all_rows)
-                        try:
-                            success_rate_now = (float(word_from_database[2]) / (
-                                    float(word_from_database[2]) + float(word_from_database[3]))) * 100.0
-                        except ZeroDivisionError:
-                            success_rate_now = 0
-                        guess_now = int(word_from_database[2])
-
-                        i += 1
-                        continue
+    all_words = cursor.fetchall()
+    random_word_from_all_words = choice(all_words)
+    return random_word_from_all_words
 
 
 def update_guess_counter(guess_type, word_tuple):
+    sql_cursor = connection.cursor()
+    update_word_name = word_tuple[0]
     if guess_type == 'correctGuess':
-        sql = 'UPDATE words SET correctGuess = ? WHERE word = ?'
-        sql_cursor = connection.cursor()
-        sql_cursor.execute(sql, (str(int(word_tuple[2]) + 1), word_tuple[0]))
-        connection.commit()
-
+        update_sql = 'UPDATE words SET correctGuess = ? WHERE word = ?'
+        sql_cursor.execute(update_sql, (str(int(word_tuple[2]) + 1), update_word_name))
     elif guess_type == 'wrongGuess':
-        sql = 'UPDATE words SET wrongGuess = ? WHERE word = ?'
-        sql_cursor = connection.cursor()
-        sql_cursor.execute(sql, (str(int(word_tuple[3]) + 1), word_tuple[0]))
-        connection.commit()
+        update_sql = 'UPDATE words SET wrongGuess = ? WHERE word = ?'
+        sql_cursor.execute(update_sql, (str(int(word_tuple[3]) + 1), update_word_name))
+    connection.commit()
 
 
 def get_word_data(name_of_word):
@@ -106,16 +69,16 @@ def get_word_data(name_of_word):
     return row_tuple
 
 
-def add_word_to_database(original, translated):
+def add_word_to_database(original_word, add_translated_word):
     add_sql = ' INSERT INTO words(word, translatedWord, correctGuess, wrongGuess)VALUES(?,?,?,?) '
-    check_sql = 'SELECT * FROM words where word = ?'
+    check_sql = 'SELECT word FROM words where word = ?'
 
     sql_cursor = connection.cursor()
-    sql_cursor.execute(check_sql, (original.lower(),))
+    sql_cursor.execute(check_sql, (original_word.lower(),))
     check_word = sql_cursor.fetchall()
 
     if len(check_word) == 0:
-        sql_cursor.execute(add_sql, (original.lower(), translated.translate(lower_map).lower(), 0, 0))
+        sql_cursor.execute(add_sql, (original_word.lower(), add_translated_word.translate(lower_map).lower(), 0, 0))
         print(message["successfullyAdded"])
     else:
         print(message["alreadyAdded"])
@@ -133,65 +96,53 @@ def remove_word_from_database(name_of_word):
     this_word = sql_cursor.fetchall()
 
     if len(this_word) == 0:
-        print(message["wordNotFound"])
+        return False
     else:
         sql_cursor.execute(delete_sql, (name_of_word.lower(),))
-        print(message["wordDeleted"])
-
-    connection.commit()
+        connection.commit()
+        return True
 
 
 def print_all_words():
     word_counter = int()
-    print_cursor = connection.cursor()
-    print_cursor.execute("SELECT * from 'words'")
+    cursor.execute("SELECT * from 'words'")
 
-    print_rows = print_cursor.fetchall()
+    all_words = cursor.fetchall()
 
-    if len(print_rows) == 0:
+    if len(all_words) == 0:
         clear()
         print(message["emptyDatabase"])
         return True
-
+    elif len(all_words) == 0:
+        clear()
+        print("+" + "-" * 70 + "+\n")
+        print(message["noWord"])
+        print("\n+" + "-" * 70 + "+\n")
     else:
-        allWords = dict()
-        for word_print in print_rows:
-            correctCt_print = float(word_print[2])
-            wrongCt_print = float(word_print[3])
+        clear()
+        print(message["allWords"] + "+" + "-" * 70 + "+\n")
+        for K in all_words:
+            original_word = K[0]
+            print_translated_word = K[1]
+            correct_guess = K[2]
+            wrong_guess = K[3]
 
-            try:
-                success_rate_print = (correctCt_print / (correctCt_print + wrongCt_print)) * 100.0
-            except ZeroDivisionError:
-                success_rate_print = 0
-
-            allWords[word_print[0]] = [success_rate_print, correctCt_print, wrongCt_print]
-
-        if len(allWords) == 0:
-            clear()
-
-            print("+" + "-" * 70 + "+\n")
-            print(message["noWord"])
+            if correct_guess == 0 and wrong_guess == 0:
+                success_rate = 0
+            else:
+                success_rate = (correct_guess * 1.0 / (correct_guess + wrong_guess)) * 100
+            print(">>> {} ==> {}\n>>> {}%{:.2f}\n>>> {} {}\n>>> {} {}\n".format(original_word, print_translated_word,
+                                                                                message["successRate"],
+                                                                                success_rate, message[
+                                                                                    "correctGuessCounter"],
+                                                                                correct_guess,
+                                                                                message[
+                                                                                    "wrongGuessCounter"],
+                                                                                wrong_guess))
+            word_counter += 1
             print("\n+" + "-" * 70 + "+\n")
-        else:
-            clear()
-            print(message["allWords"] + "+" + "-" * 70 + "+\n")
-
-            for K, V in allWords.items():
-                translatedVersion = get_word_data(K)[0][1]
-
-                print(">>> {} ==> {}\n>>> {}%{:.2f}\n>>> {} {}\n>>> {} {}\n".format(K, translatedVersion,
-                                                                                    message["successRate"],
-                                                                                    V[0], message[
-                                                                                        "correctGuessCounter"],
-                                                                                    int(V[1]),
-                                                                                    message[
-                                                                                        "wrongGuessCounter"],
-                                                                                    int(V[2])))
-                word_counter += 1
-                print("\n+" + "-" * 70 + "+\n")
-
-        print(message["printWordsEnd"] + str(word_counter) + "\n")
-        return True
+    print(message["printWordsEnd"] + str(word_counter) + "\n")
+    return True
 
 
 while True:
@@ -219,52 +170,46 @@ while True:
                     consoleClearCounter = 0
 
                 consoleClearCounter += 1
+
+                word_data = get_word_data(word[0])
+                word_name = word_data[0][0]
+                translated_word = word_data[0][1]
+                correct_counter = int(word_data[0][2])
+                wrong_counter = int(word_data[0][3])
+
                 if guess.translate(lower_map).lower() == word[1]:
                     update_guess_counter('correctGuess', word)
-
-                    row = get_word_data(word[0])
-                    wordName = row[0][0]
-                    translatedWord = row[0][1]
-                    correctCounter = int(row[0][2])
-                    wrongCounter = int(row[0][3])
-
                     print("'{}' {}\n".format(guess, message["correctGuess"]))
-                    print("{}{}\n".format(message["correctGuessCounter"], correctCounter, ))
+                    print("{}{}\n".format(message["correctGuessCounter"], correct_counter, ))
 
                     if settings["showSuccessRate"] == "On":
-
                         try:
                             successRate = (
-                                    (float(correctCounter) / (float(wrongCounter) + float(correctCounter))) * 100.0)
+                                    (float(correct_counter) / (float(wrong_counter) + float(correct_counter))) * 100.0)
 
                             print("{} %{:.2f}\n".format(message["successRate"], successRate))
 
                         except ZeroDivisionError:
-                            print("{}\n".format(message["insufficientData"]))
+                            print("{} %0.0\n")
 
                 elif guess.lower() == 'q':
                     clear()
                     break
+                elif guess == '?':
+                    print("{} ==> {}\n".format(word_name, translated_word))
+
                 else:
                     update_guess_counter('wrongGuess', word)
-
-                    row = get_word_data(word[0])
-                    wordName = row[0][0]
-                    translatedWord = row[0][1]
-                    correctCounter = int(row[0][2])
-                    wrongCounter = int(row[0][3])
-
-                    print("\n'{}' {} '{}'\n".format(guess, message["wrongGuess"], translatedWord))
+                    print("\n'{}' {} '{}'\n".format(guess, message["wrongGuess"], translated_word))
                     if settings["showSuccessRate"] == "On":
-
                         try:
                             successRate = (
-                                    (float(correctCounter) / (float(wrongCounter) + float(correctCounter))) * 100.0)
+                                    (float(correct_counter) / (float(wrong_counter) + float(correct_counter))) * 100.0)
 
                             print("{} %{:.2f}\n".format(message["successRate"], successRate))
 
                         except ZeroDivisionError:
-                            print("{}\n".format(message["insufficientData"]))
+                            print("{} %0.0\n")
         elif numInput == '2':
             cur = connection.cursor()
             cur.execute("SELECT * from 'words'")
@@ -279,6 +224,7 @@ while True:
 
             else:
                 learned = dict()
+                learned_word_counter = int()
                 for e in rows:
                     correctCt = float(e[2])
                     wrongCt = float(e[3])
@@ -312,7 +258,10 @@ while True:
                                                                             "correctGuessCounter"], int(v[1]),
                                                                         message["wrongGuessCounter"],
                                                                         int(v[2])))
+                        learned_word_counter += 1
                     print("\n+" + "-" * 70 + "+\n")
+                    print("Total: {}\n".format(learned_word_counter))
+
                 break
         elif numInput == '3':
             os.system('color c')
@@ -449,9 +398,9 @@ while True:
                     clear()
                     break
 
-                translatedWord = input("{}".format(message["enterTranslated"]))
+                translated_word = input("{}".format(message["enterTranslated"]))
 
-                if translatedWord.lower() == 'q':
+                if translated_word.lower() == 'q':
                     numInput = "ExitLoop"
                     clear()
                     break
@@ -464,14 +413,20 @@ while True:
 
                 if verify:
                     print("+" + "-" * 70 + "+\n")
-                    add_word_to_database(originalWord, translatedWord)
+                    add_word_to_database(originalWord, translated_word)
 
         elif numInput == '5':
-            os.system('color 4')
+            status_message = str()
+            os.system('color c')
             while True:
+                if consoleClearCounter == 1:
+                    clear()
+                    consoleClearCounter = 0
                 print("+" + "-" * 70 + "+\n")
+                print(status_message, end="")
                 verify = False
                 wordToBeDeleted = input("{}".format(message["enterWordToBeDeleted"]))
+                consoleClearCounter += 1
 
                 if wordToBeDeleted.lower() == 'q':
                     numInput = "ExitLoop"
@@ -480,7 +435,7 @@ while True:
 
                 verifyInput = input("{}".format(message["enterVerifyForDelete"]))
 
-                if verifyInput == 'E' or verifyInput == 'e' or verifyInput == 'Y' or verifyInput == 'y':
+                if verifyInput.lower() == 'y' or verifyInput.lower() == 'e':
                     verify = True
 
                 elif verifyInput.lower() == 'q':
@@ -489,7 +444,11 @@ while True:
                     break
 
                 if verify:
-                    remove_word_from_database(wordToBeDeleted)
+                    if remove_word_from_database(wordToBeDeleted):
+                        status_message = message["wordDeleted"]
+                    else:
+                        status_message = message["wordNotFound"]
+
         elif numInput == '6':
             if print_all_words():
                 break
