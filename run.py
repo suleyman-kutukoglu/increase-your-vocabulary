@@ -209,7 +209,7 @@ while True:
                             print("{} %{:.2f}\n".format(message["successRate"], successRate))
 
                         except ZeroDivisionError:
-                            print("{} %0.0\n")
+                            print("{} %0.0\n".format(message["successRate"]))
         elif numInput == '2':
             cur = connection.cursor()
             cur.execute("SELECT * from 'words'")
